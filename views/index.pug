@@ -1,0 +1,66 @@
+html
+  //- link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css")
+  head
+    title Lhoiht admin
+  body(border=50)
+    script
+        include client.js
+    h3 Ajouter des utilisateurs.
+    form(action="add_users/" method="post")
+      label Utilisateurs (Séparer par une virgule): 
+      input(
+        name="users"
+      )
+      br
+      label Mot de passe: 
+      input(
+        name="password"
+      )
+      br
+      label Groupe: 
+      input(
+        name="group"
+      )
+      br
+      input(type='submit', value='Ajouter')
+    each group in groups
+      - var groupName = group[0].customClaims ? group[0].customClaims['group'] : 'undefined'
+      h3 Group #{groupName} #{group.length} utilisateurs
+      form(action="change_group/" + groupName + "/true" method="post" style="display: inline-block;")
+        input(
+          type='submit'
+          value='Desactiver les membres du groupe'
+        )
+      form(action="change_group/" + groupName + "/false" method="post" style="display: inline-block;")
+        input(
+          type='submit'
+          value='Activer les membres du groupe'
+        )
+      button(onclick="toggleDisplay(table_" + groupName + ")") Afficher/Cacher les membres du group
+      table(border='1' id="table_" + groupName)
+        tr
+          th Name
+          th Email
+          th Groupe
+          th Actif
+        each user in group
+          tr
+            td= user.email.split('@')[0].split('.').join(' ')
+            td= user.email
+            td
+              form(action="change_user/" + user.uid + "/group" method="post")
+                input(
+                  name="group"
+                  value=groupName
+                )
+                input(type='submit', value='OK')
+            td
+              form(action="change_user/" + user.uid + "/disabled/" + !user.disabled method="post")
+                input(
+                  type='checkbox'
+                  name='enabled'
+                  checked=!user.disabled
+                  onChange="this.form.submit()"
+                )
+    br
+    a(href="https://www.openode.io/") Cloud hosted on opeNode.io
